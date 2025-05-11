@@ -1,6 +1,14 @@
 export class TasksModel {
 	constructor() {
-		this.tasks = [];
+		this.getTasksFromStorage();
+	}
+
+	getTasksFromStorage() {
+		setTimeout(() => {
+			const storedTasks = localStorage.getItem('tasks');
+			this.tasks = JSON.parse(storedTasks) ?? [];
+			this._commit(this.tasks);
+		}, 0);
 	}
 
 	bindTaskListChanged(callback) {
@@ -59,7 +67,10 @@ export class TasksModel {
 	}
 
 	_commit(tasks) {
-		this.onTaskListChanged(tasks);
 		localStorage.setItem('tasks', JSON.stringify(tasks));
+
+		if (this.onTaskListChanged) {
+			this.onTaskListChanged(tasks);
+		}
 	}
 }
