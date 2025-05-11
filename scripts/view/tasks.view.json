@@ -1,0 +1,57 @@
+{
+	"tasksContainer": {
+		"tagName": "div",
+		"classList": ["tasks-container"],
+		"children": {
+			"title": {
+				"tagName": "li",
+				"classList": ["tasks-title"],
+				"createProp": true
+			},
+			"listContainer": {
+				"tagName": "div",
+				"classList": ["tasks-list-container"],
+				"children": {
+					"tasksList": {
+						"tagName": "ul",
+						"classList": ["tasks-list"],
+						"createProp": true
+					}
+				}
+			},
+			"footerContainer": {
+				"tagName": "div",
+				"classList": ["footer-container"],
+				"children": {
+					"form": {
+						"tagName": "form",
+						"classList": ["task-form"],
+						"createProp": true,
+						"children": {
+							"input": {
+								"tagName": "input",
+								"createProp": true,
+								"props": {
+									"type": "text",
+									"name": "task",
+									"id": "add-task-input",
+									"placeholder": "Ingresa una tarea nueva..."
+								}
+							}
+						}
+					},
+					"addTaskButton": {
+						"tagName": "button",
+						"classList": ["button"],
+						"createProp": true,
+						"props": {
+							"type": "button",
+							"id": "add-task-button",
+							"textContent": "Agregar una tarea"
+						}
+					}
+				}
+			}
+		}
+	}
+}
