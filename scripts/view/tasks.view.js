@@ -5,19 +5,11 @@ export class TaskView {
 	constructor() {
 		this.showingInput = false;
 		this._initStructure();
+		this._initLocalListeners();
 	}
 
 	bindAddTask(handler) {
-		this.form.addEventListener('submit', (event) => {
-			event.preventDefault();
-
-			if (this.input.value) {
-				handler(this.input.value.trim());
-			}
-
-			this.form.reset();
-			this._toggleButtonAndInputView();
-		});
+		this.onAddTask = handler;
 	}
 
 	bindCompleteTask(handler) {
@@ -46,24 +38,40 @@ export class TaskView {
 				this._toggleButtonAndInputView();
 			}
 		});
+
+		this.form.addEventListener('submit', (event) => {
+			event.preventDefault();
+
+			if (this.input.value) {
+				this.onAddTask(this.input.value.trim());
+			}
+
+			this.form.reset();
+			this._toggleButtonAndInputView();
+		});
+
+		this.addTaskButton.addEventListener('click', (event) => {
+			event.stopPropagation();
+			this._toggleButtonAndInputView();
+		});
 	}
 
 	_initStructure() {
-		this.app = this._getElement('#app');
+		this.app = getElement('#app');
 
-		const tasksContainer = this._createElement('div', 'tasks-container');
-		this.title = this._createElement('h1', 'tasks-title');
+		const tasksContainer = createElement('div', 'tasks-container');
+		this.title = createElement('h1', 'tasks-title');
 
-		const listContainer = this._createElement('div', 'tasks-list-container');
-		this.tasksList = this._createElement('ul', 'tasks-list');
+		const listContainer = createElement('div', 'tasks-list-container');
+		this.tasksList = createElement('ul', 'tasks-list');
 
 		listContainer.append(this.tasksList);
 
-		const footerContainer = this._createElement('div', 'footer-container');
+		const footerContainer = createElement('div', 'footer-container');
 
-		this.form = this._createElement('form', 'task-form');
+		this.form = createElement('form', 'task-form');
 
-		this.input = this._createElement('input', 'input', {
+		this.input = createElement('input', 'input', {
 			type: 'text',
 			name: 'task',
 			id: 'add-task-input',
@@ -72,23 +80,16 @@ export class TaskView {
 
 		this.form.append(this.input);
 
-		this.addTaskButton = this._createElement('button', 'button', {
+		this.addTaskButton = createElement('button', 'button', {
 			type: 'button',
 			id: 'add-task-button',
 			textContent: 'Agregar una tarea',
-		});
-
-		this.addTaskButton.addEventListener('click', (event) => {
-			event.stopPropagation();
-			this._toggleButtonAndInputView();
 		});
 
 		footerContainer.append(this.form, this.addTaskButton);
 
 		tasksContainer.append(this.title, listContainer, footerContainer);
 		this.app.append(tasksContainer);
-
-		this._initLocalListeners();
 	}
 
 	_toggleButtonAndInputView() {
@@ -106,15 +107,15 @@ export class TaskView {
 
 	updateTasksList(tasks) {
 		const taskListElements = tasks.map((task) => {
-			return this._createTaskListElement(task);
+			return this._createTaskElement(task);
 		});
 
 		this.tasksList.replaceChildren(...taskListElements);
 	}
 
-	_createTaskListElement(task) {
+	_createTaskElement(task) {
 		// Elemento de lista
-		const taskListItem = this._createElement('li', 'task-item', {
+		const taskListItem = createElement('li', 'task-item', {
 			'data-task-id': task.id,
 		});
 
@@ -128,7 +129,7 @@ export class TaskView {
 		}
 
 		// Boton Favorito
-		const favTaskButton = this._createElement(
+		const favTaskButton = createElement(
 			'button',
 			['fav-task-button', 'task-action'],
 			{
@@ -146,7 +147,7 @@ export class TaskView {
 		}
 
 		// Boton Borrar
-		const deleteTaskButton = this._createElement(
+		const deleteTaskButton = createElement(
 			'button',
 			['delete-task-button', 'task-action'],
 			{
@@ -172,13 +173,5 @@ export class TaskView {
 		taskListItem.appendChild(deleteTaskButton);
 
 		return taskListItem;
-	}
-
-	_createElement(tagName, classList, props) {
-		return createElement(tagName, classList, props);
-	}
-
-	_getElement(selector) {
-		return getElement(selector);
 	}
 }
