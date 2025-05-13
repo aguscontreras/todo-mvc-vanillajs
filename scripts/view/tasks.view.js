@@ -1,10 +1,4 @@
-import {
-	check,
-	circle,
-	star,
-	star_fill,
-	trash,
-} from '../../constants/svg/svg_constants.js';
+import { appIconsMap } from '../../constants/svg/svg_constants.js';
 import { createElement, getElement } from '../helpers/dom.js';
 
 export class TaskView {
@@ -138,7 +132,7 @@ export class TaskView {
 			'button',
 			['fav-task-button', 'task-action'],
 			{
-				innerHTML: task.favorite ? star_fill : star,
+				innerHTML: task.favorite ? appIconsMap.star_fill : appIconsMap.star,
 			}
 		);
 
@@ -156,7 +150,7 @@ export class TaskView {
 			'button',
 			['delete-task-button', 'task-action'],
 			{
-				innerHTML: trash,
+				innerHTML: appIconsMap.trash,
 			}
 		);
 
@@ -167,7 +161,7 @@ export class TaskView {
 
 		taskListItem.innerHTML = `
                 <div class="check">
-                    ${task.settled ? check : circle}
+                    ${task.settled ? appIconsMap.check : appIconsMap.circle}
                 </div>
 				<div class="task">
 				    <p class="task-title">${task.text}</p>
