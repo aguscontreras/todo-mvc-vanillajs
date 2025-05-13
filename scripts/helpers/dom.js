@@ -1,3 +1,10 @@
+/**
+ * Crea un elemento HTML
+ * @param {string} tagName Tag HTML
+ * @param {string | string[]} classList Lista de clases
+ * @param {Object}} Propiedades
+ * @returns {Element} Elemento creado
+ */
 export function createElement(tagName, classList, props) {
 	const element = document.createElement(tagName);
 
@@ -18,6 +25,11 @@ export function createElement(tagName, classList, props) {
 	return element;
 }
 
+/**
+ * Selecciona un elemento HTML del dom
+ * @param {string} selector Selector
+ * @returns {Element} Element
+ */
 export function getElement(selector) {
 	const element = document.querySelector(selector);
 	return element;
