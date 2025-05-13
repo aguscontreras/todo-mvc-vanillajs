@@ -34,3 +34,13 @@ export function getElement(selector) {
 	const element = document.querySelector(selector);
 	return element;
 }
+
+/**
+ * Selecciona elementos HTML del dom
+ * @param {string} selector Selector
+ * @returns {NodeListOf<Element>} Elements
+ */
+export function getElements(selector) {
+	const elements = document.querySelectorAll(selector);
+	return elements;
+}
