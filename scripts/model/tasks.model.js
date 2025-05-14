@@ -1,76 +1,85 @@
 export class TasksModel {
-	constructor() {
-		this.getTasksFromStorage();
-	}
+  constructor() {
+    this._initTasks();
+  }
 
-	getTasksFromStorage() {
-		setTimeout(() => {
-			const storedTasks = localStorage.getItem('tasks');
-			this.tasks = JSON.parse(storedTasks) ?? [];
-			this._commit(this.tasks);
-		}, 0);
-	}
+  _initTasks() {
+    setTimeout(() => {
+      const storedTasks = JSON.parse(localStorage.getItem("tasks")) ?? [];
+      this.setTasks(storedTasks);
+    }, 0);
+  }
 
-	bindTaskListChanged(callback) {
-		this.onTaskListChanged = callback;
-	}
+  bindTaskListChanged(callback) {
+    this.onTaskListChanged = callback;
+  }
 
-	addTask(taskText) {
-		const task = {
-			id: crypto.randomUUID(),
-			text: taskText,
-			settled: false,
-			parentListId: null,
-			favorite: false,
-		};
+  setActiveList(list) {
+    this._activeList = list;
+  }
 
-		this.tasks.push(task);
-		this._commit(this.tasks);
-	}
+  getActiveList() {
+    return this._activeList;
+  }
 
-	editTaskText(id, updatedText) {
-		this.tasks = this.tasks.map((task) =>
-			task.id === id ? { ...task, text: updatedText } : task
-		);
+  setTasks(tasks) {
+    this._tasks = tasks;
+    this._commit(this._tasks);
+  }
 
-		this._commit(this.tasks);
-	}
+  getTasks() {
+    return this._tasks;
+  }
 
-	deleteTask(id) {
-		this.tasks = this.tasks.filter((task) => task.id !== id);
+  find(id) {
+    return this.getTasks().find((e) => e.id === id);
+  }
 
-		this._commit(this.tasks);
-	}
+  create(text) {
+    const newTask = {
+      id: crypto.randomUUID(),
+      text,
+      settled: false,
+      parentListId: this.getActiveList().id,
+      favorite: false,
+    };
 
-	toggleTaskSettled(id) {
-		this.tasks = this.tasks.map((task) =>
-			task.id === id ? { ...task, settled: !task.settled } : task
-		);
+    this.setTasks([...this.getTasks(), newTask]);
+  }
 
-		this._commit(this.tasks);
-	}
+  update(id, params) {
+    this.setTasks(
+      this.getTasks().map((task) =>
+        task.id === id ? { ...task, ...params } : task
+      )
+    );
+  }
 
-	toggleTaskFavorite(id) {
-		this.tasks = this.tasks.map((task) =>
-			task.id === id ? { ...task, favorite: !task.favorite } : task
-		);
+  delete(id) {
+    this.setTasks(this.getTasks().filter((task) => task.id !== id));
+  }
 
-		this._commit(this.tasks);
-	}
+  toggleSettled(id) {
+    this.setTasks(
+      this.getTasks().map((task) =>
+        task.id === id ? { ...task, settled: !task.settled } : task
+      )
+    );
+  }
 
-	setParentListId(taskId, parentListId) {
-		this.tasks = this.tasks.map((task) =>
-			task.id === taskId ? { ...task, parentListId } : task
-		);
+  toggleFavorite(id) {
+    this.setTasks(
+      this.getTasks().map((task) =>
+        task.id === id ? { ...task, favorite: !task.favorite } : task
+      )
+    );
+  }
 
-		this._commit(this.tasks);
-	}
+  _commit(tasks) {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
 
-	_commit(tasks) {
-		localStorage.setItem('tasks', JSON.stringify(tasks));
-
-		if (this.onTaskListChanged) {
-			this.onTaskListChanged(tasks);
-		}
-	}
+    if (this.onTaskListChanged) {
+      this.onTaskListChanged(tasks);
+    }
+  }
 }

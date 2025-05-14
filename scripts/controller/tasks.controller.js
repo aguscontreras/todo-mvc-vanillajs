@@ -3,24 +3,24 @@ export class TasksController {
 		this.tasksView = tasksView;
 		this.tasksModel = tasksModel;
 
-		this.tasksView.bindAddTask((taskText) => {
-			this.tasksModel.addTask(taskText);
+		this.tasksView.bindAddTask((text) => {
+			this.tasksModel.create(text);
 		});
 
-		this.tasksView.bindCompleteTask((taskId) => {
-			this.tasksModel.toggleTaskSettled(taskId);
+		this.tasksView.bindCompleteTask((id) => {
+			this.tasksModel.toggleSettled(id);
 		});
 
-		this.tasksView.bindFavTask((taskId) => {
-			this.tasksModel.toggleTaskFavorite(taskId);
+		this.tasksView.bindFavTask((id) => {
+			this.tasksModel.toggleFavorite(id);
 		});
 
-		this.tasksView.bindDeleteTask((taskId) => {
-			this.tasksModel.deleteTask(taskId);
+		this.tasksView.bindDeleteTask((id) => {
+			this.tasksModel.delete(id);
 		});
 
 		this.tasksModel.bindTaskListChanged((tasks) => {
-			this.tasksView.updateTasksList(tasks);
+			this.tasksView.displayTasks(tasks);
 		});
 	}
 }
