@@ -21,6 +21,11 @@ export class TasksController {
 
 		this.tasksModel.bindTaskListChanged((tasks) => {
 			this.tasksView.displayTasks(tasks);
+			this.onTasksChanged(tasks);
 		});
+	}
+
+	bindOnTaskChanged(callback) {
+		this.onTasksChanged = callback;
 	}
 }

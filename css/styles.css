@@ -154,7 +154,7 @@ button {
 }
 
 .tasks-title {
-  color: var(--acqua);
+  color: var(--active-color);
   font-size: 2em;
   font-weight: 700;
   margin-bottom: var(--space-1);

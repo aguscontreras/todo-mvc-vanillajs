@@ -1,293 +1,302 @@
-import { appIconsMap, iconsMap } from "../../constants/svg/svg_constants.js";
-import { hexColors } from "../../constants/theme/colors.js";
-import { createElement, getElement, getElements } from "../helpers/dom.js";
+import { appIconsMap, iconsMap } from '../../constants/svg/svg_constants.js';
+import { hexColors } from '../../constants/theme/colors.js';
+import { createElement, getElement, getElements } from '../helpers/dom.js';
 
 export class ListsView {
-  _showAddListForm = false;
+	_showAddListForm = false;
 
-  constructor() {
-    this._initStructure();
-    this._initLocalListeners();
-  }
+	constructor() {
+		this._initStructure();
+		this._initLocalListeners();
+	}
 
-  setActiveList(list) {
-    this._activeList = list;
-  }
+	setActiveList(list) {
+		this._activeList = list;
+	}
 
-  getActiveList() {
-    return this._activeList;
-  }
+	getActiveList() {
+		return this._activeList;
+	}
 
-  bindOnListClick(handler) {
-    this.onActiveListChanged = handler;
-  }
+	bindOnListClick(handler) {
+		this.onActiveListChanged = handler;
+	}
 
-  selectList(list, event) {
-    getElements(".list-item").forEach((e) => {
-      if (event.target.closest("li") === e) {
-        e.classList.add("active");
-      } else {
-        e.classList.remove("active");
-      }
-    });
+	selectList(list, event) {
+		getElements('.list-item').forEach((e) => {
+			if (event.target.closest('li') === e) {
+				e.classList.add('active');
+			} else {
+				e.classList.remove('active');
+			}
+		});
 
-    const root = getElement(":root");
-    root.style.setProperty("--active-color", list.color);
-    this.onActiveListChanged(list);
-  }
+		const root = getElement(':root');
+		root.style.setProperty('--active-color', list.color);
+		this.onActiveListChanged(list);
+	}
 
-  _handleIconSelect(input, icon, event) {
-    event.stopPropagation();
-    input.value = icon;
+	_handleIconSelect(input, icon, event) {
+		event.stopPropagation();
+		input.value = icon;
 
-    getElements(".icon-selector").forEach((e) => {
-      e.classList.remove("active");
+		getElements('.icon-selector').forEach((e) => {
+			e.classList.remove('active');
 
-      if (e.dataset.icon === input.value) {
-        e.classList.add("active");
-      }
-    });
-  }
+			if (e.dataset.icon === input.value) {
+				e.classList.add('active');
+			}
+		});
+	}
 
-  _handleColorSelect(input, color, event) {
-    event.stopPropagation();
-    input.value = color;
+	_handleColorSelect(input, color, event) {
+		event.stopPropagation();
+		input.value = color;
 
-    getElement(":root").style.setProperty("--temp-color", color);
+		getElement(':root').style.setProperty('--temp-color', color);
 
-    getElements(".color-selector").forEach((e) => {
-      e.classList.remove("active");
+		getElements('.color-selector').forEach((e) => {
+			e.classList.remove('active');
 
-      if (e.dataset.color === input.value) {
-        e.classList.add("active");
-      }
-    });
-  }
+			if (e.dataset.color === input.value) {
+				e.classList.add('active');
+			}
+		});
+	}
 
-  bindOnAddList(handler) {
-    this.onAddList = handler;
-  }
+	bindOnAddList(handler) {
+		this.onAddList = handler;
+	}
 
-  displayLists(lists) {
-    const listElements = lists.map((list) => this._createListElement(list));
-    this.listsContainer.replaceChildren(...listElements);
-  }
+	displayLists(lists, tasks) {
+		if (!lists) return;
 
-  _initStructure() {
-    this.app = getElement("#app");
-    this.asideContainer = createElement("aside", "lists-container");
-    this.listsContainer = createElement("ul", "lists-list");
+		const listElements = lists.map((list) => {
+			const listPendingTasks =
+				list.id !== '2'
+					? tasks.filter((e) => e.parentListId === list.id && !e.settled).length
+					: tasks.filter((e) => e.favorite && !e.settled).length;
 
-    const createListContainer = createElement("div", "create-list-container");
+			return this._createListElement(list, listPendingTasks);
+		});
 
-    this.createListButton = createElement(
-      "button",
-      ["create-list", "button", "button-text", "button-neutral", "button-sm"],
-      { textContent: "Nueva lista" }
-    );
+		this.listsContainer.replaceChildren(...listElements);
+	}
 
-    this.formContainer = createElement("div", ["form-container", "mb-1"]);
+	_initStructure() {
+		this.app = getElement('#app');
+		this.asideContainer = createElement('aside', 'lists-container');
+		this.listsContainer = createElement('ul', 'lists-list');
 
-    this.addListForm = createElement("form");
+		const createListContainer = createElement('div', 'create-list-container');
 
-    this._createForm();
+		this.createListButton = createElement(
+			'button',
+			['create-list', 'button', 'button-text', 'button-neutral', 'button-sm'],
+			{ textContent: 'Nueva lista' }
+		);
 
-    createListContainer.append(this.createListButton);
+		this.formContainer = createElement('div', ['form-container', 'mb-1']);
 
-    this.asideContainer.append(
-      this.listsContainer,
-      this.formContainer,
-      createListContainer
-    );
+		this.addListForm = createElement('form');
 
-    this.app.prepend(this.asideContainer);
-  }
+		this._createForm();
 
-  _createForm() {
-    this._nameInput = createElement("input", "input", {
-      type: "text",
-      name: "name",
-      id: "list-name-input",
-      placeholder: "Ingresa el nombre de tu lista...",
-    });
+		createListContainer.append(this.createListButton);
 
-    this._colorInput = createElement("input", "input", {
-      type: "hidden",
-      name: "color",
-      id: "list-color-input",
-    });
+		this.asideContainer.append(
+			this.listsContainer,
+			this.formContainer,
+			createListContainer
+		);
 
-    this._iconInput = createElement("input", "input", {
-      type: "hidden",
-      name: "icon",
-      id: "list-icon-input",
-    });
+		this.app.prepend(this.asideContainer);
+	}
 
-    const colorSelectTitle = createElement("h4", "metadata-selector-subtitle", {
-      textContent: 'Color'
-    });
+	_createForm() {
+		this._nameInput = createElement('input', 'input', {
+			type: 'text',
+			name: 'name',
+			id: 'list-name-input',
+			placeholder: 'Ingresa el nombre de tu lista...',
+		});
 
-    const iconSelectTitle = createElement("h4", "metadata-selector-subtitle", {
-      textContent: 'Icono'
-    });
+		this._colorInput = createElement('input', 'input', {
+			type: 'hidden',
+			name: 'color',
+			id: 'list-color-input',
+		});
 
-    const colorSelectorContainer = createElement(
-      "div",
-      "metadata-selector-container"
-    );
+		this._iconInput = createElement('input', 'input', {
+			type: 'hidden',
+			name: 'icon',
+			id: 'list-icon-input',
+		});
 
-    const colorItems = hexColors.map((color) => {
-      const outside = createElement("div", [
-        "metadata-selector-outside",
-        "color-selector",
-      ]);
+		const colorSelectTitle = createElement('h4', 'metadata-selector-subtitle', {
+			textContent: 'Color',
+		});
 
-      outside.setAttribute("data-color", color);
+		const iconSelectTitle = createElement('h4', 'metadata-selector-subtitle', {
+			textContent: 'Icono',
+		});
 
-      const selector = createElement("div", "metadata-selector");
-      selector.style.background = color;
+		const colorSelectorContainer = createElement(
+			'div',
+			'metadata-selector-container'
+		);
 
-      outside.append(selector);
+		const colorItems = hexColors.map((color) => {
+			const outside = createElement('div', [
+				'metadata-selector-outside',
+				'color-selector',
+			]);
 
-      outside.addEventListener("click", (event) => {
-        this._handleColorSelect(this._colorInput, color, event);
-      });
+			outside.setAttribute('data-color', color);
 
-      return outside;
-    });
+			const selector = createElement('div', 'metadata-selector');
+			selector.style.background = color;
 
-    const iconSelectorContainer = createElement(
-      "div",
-      "metadata-selector-container"
-    );
+			outside.append(selector);
 
-    const iconsItems = Object.keys(iconsMap).map((icon) => {
-      const outside = createElement("div", [
-        "metadata-selector-outside",
-        "icon-selector",
-      ]);
+			outside.addEventListener('click', (event) => {
+				this._handleColorSelect(this._colorInput, color, event);
+			});
 
-      outside.setAttribute("data-icon", icon);
+			return outside;
+		});
 
-      const selector = createElement("div", "metadata-selector");
-      selector.innerHTML = iconsMap[icon];
+		const iconSelectorContainer = createElement(
+			'div',
+			'metadata-selector-container'
+		);
 
-      outside.append(selector);
+		const iconsItems = Object.keys(iconsMap).map((icon) => {
+			const outside = createElement('div', [
+				'metadata-selector-outside',
+				'icon-selector',
+			]);
 
-      outside.addEventListener("click", (event) => {
-        this._handleIconSelect(this._iconInput, icon, event);
-      });
+			outside.setAttribute('data-icon', icon);
 
-      return outside;
-    });
+			const selector = createElement('div', 'metadata-selector');
+			selector.innerHTML = iconsMap[icon];
 
-    colorSelectorContainer.append(...colorItems);
-    iconSelectorContainer.append(...iconsItems);
+			outside.append(selector);
 
-    this.addListForm.append(
-      this._nameInput,
-      colorSelectTitle,
-      colorSelectorContainer,
-      iconSelectTitle,
-      iconSelectorContainer,
-      this._colorInput,
-      this._iconInput
-    );
-  }
+			outside.addEventListener('click', (event) => {
+				this._handleIconSelect(this._iconInput, icon, event);
+			});
 
-  _initLocalListeners() {
-    document.addEventListener("click", (event) => {
-      if (this._showAddListForm && !this.formContainer.contains(event.target)) {
-        this._toggleAddListForm();
-      }
-    });
+			return outside;
+		});
 
-    this.addListForm.addEventListener("submit", (event) => {
-      event.preventDefault();
+		colorSelectorContainer.append(...colorItems);
+		iconSelectorContainer.append(...iconsItems);
 
-      const dataForm = new FormData(this.addListForm);
+		this.addListForm.append(
+			this._nameInput,
+			colorSelectTitle,
+			colorSelectorContainer,
+			iconSelectTitle,
+			iconSelectorContainer,
+			this._colorInput,
+			this._iconInput
+		);
+	}
 
-      if (dataForm.get("name")) {
-        this.onAddList(dataForm);
-        this._toggleAddListForm();
-      }
-    });
+	_initLocalListeners() {
+		document.addEventListener('click', (event) => {
+			if (this._showAddListForm && !this.formContainer.contains(event.target)) {
+				this._toggleAddListForm();
+			}
+		});
 
-    this.createListButton.addEventListener("click", (event) => {
-      event.stopPropagation();
-      if (this._showAddListForm) {
-        this.addListForm.dispatchEvent(new Event("submit"));
-      } else {
-        this._toggleAddListForm();
-      }
-    });
-  }
+		this.addListForm.addEventListener('submit', (event) => {
+			event.preventDefault();
 
-  _toggleAddListForm() {
-    this.addListForm.reset();
-    this._showAddListForm = !this._showAddListForm;
-    this._colorInput.value = "";
-    this._iconInput.value = "";
+			const dataForm = new FormData(this.addListForm);
 
-    getElements(".metadata-selector-outside").forEach((e) => {
-      e.classList.remove("active");
-    });
+			if (dataForm.get('name')) {
+				this.onAddList(dataForm);
+				this._toggleAddListForm();
+			}
+		});
 
-    if (this._showAddListForm) {
-      this.formContainer.appendChild(this.addListForm);
-      this.formContainer.style.setProperty("display", "block");
-      this.createListButton.textContent = "Guardar";
-      this._nameInput.focus();
-    } else {
-      this.formContainer.removeChild(this.addListForm);
-      this.formContainer.style.setProperty("display", "none");
-      this.createListButton.textContent = "Nueva lista";
-    }
-  }
+		this.createListButton.addEventListener('click', (event) => {
+			event.stopPropagation();
+			if (this._showAddListForm) {
+				this.addListForm.dispatchEvent(new Event('submit'));
+			} else {
+				this._toggleAddListForm();
+			}
+		});
+	}
 
-  _createListElement(list) {
-    const listItem = createElement("li", "list-item");
-    const pendingTasks = 0;
+	_toggleAddListForm() {
+		this.addListForm.reset();
+		this._showAddListForm = !this._showAddListForm;
+		this._colorInput.value = '';
+		this._iconInput.value = '';
 
-    listItem.addEventListener("click", (event) => {
-      this.selectList(list, event);
-    });
+		getElements('.metadata-selector-outside').forEach((e) => {
+			e.classList.remove('active');
+		});
 
-    listItem.innerHTML = `
+		if (this._showAddListForm) {
+			this.formContainer.appendChild(this.addListForm);
+			this.formContainer.style.setProperty('display', 'block');
+			this.createListButton.textContent = 'Guardar';
+			this._nameInput.focus();
+		} else {
+			this.formContainer.removeChild(this.addListForm);
+			this.formContainer.style.setProperty('display', 'none');
+			this.createListButton.textContent = 'Nueva lista';
+		}
+	}
+
+	_createListElement(list, pendingTasks) {
+		const listItem = createElement('li', 'list-item');
+
+		listItem.addEventListener('click', (event) => {
+			this.selectList(list, event);
+		});
+
+		listItem.innerHTML = `
         <div class="icon-container">${this._getSvgListIcon(list.icon)}</div>
 			  <div class="list-name"><p class="name">${list.name}</p></div>
 			  <div class="badge-container"><span class="badge">${pendingTasks}</span><div>
         `;
 
-    return listItem;
-  }
+		return listItem;
+	}
 
-  _getSvgListIcon(listIcon) {
-    switch (listIcon) {
-      case "star":
-        return appIconsMap.star;
-      case "work":
-        return iconsMap.work;
-      case "shopping":
-        return iconsMap.shopping;
-      case "school":
-        return iconsMap.school;
-      case "pet":
-        return iconsMap.pet;
-      case "payments":
-        return iconsMap.payments;
-      case "house":
-        return iconsMap.house;
-      case "fitness":
-        return iconsMap.fitness;
-      case "computer":
-        return iconsMap.computer;
-      case "camping":
-        return iconsMap.camping;
-      case "assignment":
-        return appIconsMap.assignment;
-      default:
-        return iconsMap.list;
-    }
-  }
+	_getSvgListIcon(listIcon) {
+		switch (listIcon) {
+			case 'star':
+				return appIconsMap.star;
+			case 'work':
+				return iconsMap.work;
+			case 'shopping':
+				return iconsMap.shopping;
+			case 'school':
+				return iconsMap.school;
+			case 'pet':
+				return iconsMap.pet;
+			case 'payments':
+				return iconsMap.payments;
+			case 'house':
+				return iconsMap.house;
+			case 'fitness':
+				return iconsMap.fitness;
+			case 'computer':
+				return iconsMap.computer;
+			case 'camping':
+				return iconsMap.camping;
+			case 'assignment':
+				return appIconsMap.assignment;
+			default:
+				return iconsMap.list;
+		}
+	}
 }
